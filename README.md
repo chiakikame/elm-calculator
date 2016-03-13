@@ -1,11 +1,12 @@
 # elm-calculator
 
 A basic calculator written with [elm-lang](http://elm-lang.org/ "elm-lang").  
-Just be warned that it was thrown together pretty quickly and maybe shouldn't be relied upon :p.
+
+[ Demo ](http://chrisbuttery.github.io/elm-calculator/)
 
 ![alt tag](https://github.com/chrisbuttery/elm-calculator/blob/master/Elm-Calculator.png)
 
-[ Try it out here ](http://chrisbuttery.github.io/elm-calculator/)
+This app was thrown together pretty quickly for a weekend project and quickly became a race between basic functionality and my short attention span - so maybe it shouldn't be relied upon :p.
 
 ## Installation
 
