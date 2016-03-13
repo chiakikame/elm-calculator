@@ -1,6 +1,7 @@
 # elm-calculator
 
-A basic calculator written with [elm-lang](http://elm-lang.org/ "elm-lang").
+A basic calculator written with [elm-lang](http://elm-lang.org/ "elm-lang").  
+Just be warned that it was thrown together pretty quickly and maybe shouldn't be relied upon :p.
 
 ![alt tag](https://github.com/chrisbuttery/elm-calculator/blob/master/Elm-Calculator.png)
 
