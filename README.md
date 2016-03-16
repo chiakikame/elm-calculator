@@ -26,7 +26,7 @@ Install [ elm ](http://elm-lang.org/install)
 
 This little project grew out of something I wasn't quite sure how to do in Elm, and that was get the value of an element or one of it's attributes. It turns out it's quite easy.
 
-Originally I had wondered how to get a data-attribute from a button. say something like:
+I had wondered how to get a specific data-attribute from a button. say something like:
 
 ```
 button [ html.attribute "data-value" "1" ] [ text "1"]
@@ -59,18 +59,21 @@ decodeDataAttr =
 
 This will look in `e.target`'s `dataset` and pluck out `value` or whatever our attribute is called. It's pretty straight forward.
 
-A non working example of wiring it up, would look something like this.
+A trivial example of wiring it up, would look something like this.
 
 ```
+-- abstract "value" from "dataset"
 decodeDataAttr : Json.Decode.Decoder String
 decodeDataAttr =
   at ["target", "dataset", "value"] string
 
 
+-- click event
 getAttribute : Signal.Address a -> (String -> a) -> Html.Attribute
 getAttribute address f =
   on "click" decodeDataAttr (\v -> Signal.message address (f v))
 
+-- view
 view =
   button [
     attribute "data-value" "1"
