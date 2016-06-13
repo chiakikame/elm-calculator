@@ -16,7 +16,13 @@ Install [ elm ](http://elm-lang.org/install)
 % git clone git@github.com:chrisbuttery/elm-calculator.git
 % cd elm-calculator
 
+# install deps
+% elm package install
+
+# build
 % elm make Main.elm --output elm.js
+# or
+% npm run build
 
 % open index.html
 ```
@@ -71,13 +77,13 @@ decodeDataAttr =
 -- click event
 getAttribute : Signal.Address a -> (String -> a) -> Html.Attribute
 getAttribute address f =
-  on "click" decodeDataAttr (\v -> Signal.message address (f v))
+  on "click" (Json.map SomeAction decodeDataAttr)
 
 -- view
 view =
   button [
     attribute "data-value" "1"
-    , getAttribute address SomeAction
+    , getAttribute SomeAction
   ] [ text "1" ]
 
 ```

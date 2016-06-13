@@ -1,0 +1,23 @@
+{
+  "name": "elm-calculator",
+  "version": "1.0.0",
+  "description": "A basic calculator written with [elm-lang](http://elm-lang.org/ \"elm-lang\").   Just be warned that it was thrown together pretty quickly and maybe shouldn't be relied upon :p.",
+  "main": "index.js",
+  "scripts": {
+    "build": "elm-make Main.elm --output elm.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisbuttery/elm-calculator.git"
+  },
+  "author": "Chris Buttery <info@chrisbuttery.com> (http://www.chrisbuttery.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chrisbuttery/elm-calculator/issues"
+  },
+  "homepage": "https://github.com/chrisbuttery/elm-calculator#readme",
+  "devDependencies": {
+    "elm": "^0.17.0"
+  },
+  "private": true
+}
