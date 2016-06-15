@@ -1,8 +1,8 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Events exposing (onClick, on, targetValue)
-import Html.Attributes exposing (id, class, attribute, type', value, classList)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import Html.App as Html
 import Json.Decode exposing (..)
 import String
@@ -13,12 +13,12 @@ import Json.Decode as Json
 -- Events
 
 
--- decodeButtonText : Json.Decode.Decoder String
+decodeButtonText : Json.Decode.Decoder String
 decodeButtonText =
   at [ "target", "innerText" ] string
 
 
--- getTriggeredValue : Signal.Address a -> (String -> a) -> Attribute
+getTriggeredValue : Attribute Msg
 getTriggeredValue =
   on "click" (Json.map UpdateField decodeButtonText)
 
@@ -41,7 +41,6 @@ parseFloat string =
       0
 
 
-
 -- Model
 
 
@@ -62,7 +61,6 @@ initialModel =
   , operation = ""
   , allClear = True
   }
-
 
 
 -- Operations
@@ -88,7 +86,6 @@ subtraction x y =
   x - y
 
 
-
 -- Action
 
 
@@ -104,7 +101,6 @@ type Msg
   | Decimal
   | Negate
   | Percent
-
 
 
 -- Update
@@ -411,14 +407,17 @@ view model =
     ]
 
 
-
 -- Main
 
 
--- main : Signal Html
+init : Maybe Model -> ( Model, Cmd Msg )
+init savedModel =
+  ( Maybe.withDefault initialModel savedModel, Cmd.none )
+
+
 main =
-  Html.program
-    { init = ( initialModel, Cmd.none )
+  Html.programWithFlags
+    { init = init
     , view = view
     , update = update
     , subscriptions = \_ -> Sub.none
