@@ -1,10 +1,12 @@
 # elm-calculator
 
-A basic calculator written with [elm-lang](http://elm-lang.org/ "elm-lang").
+A basic calculator written with [elm-lang](http://elm-lang.org/ "elm-lang").  
+
+[ Demo ](http://chrisbuttery.github.io/elm-calculator/)
 
 ![alt tag](https://github.com/chrisbuttery/elm-calculator/blob/master/Elm-Calculator.png)
 
-[ Try it out here ](http://chrisbuttery.github.io/elm-calculator/)
+This app was thrown together pretty quickly for a weekend project and quickly became a race between basic functionality and my short attention span - so maybe it shouldn't be relied upon :p.
 
 ## Installation
 
@@ -14,7 +16,13 @@ Install [ elm ](http://elm-lang.org/install)
 % git clone git@github.com:chrisbuttery/elm-calculator.git
 % cd elm-calculator
 
+# install deps
+% elm package install
+
+# build
 % elm make Main.elm --output elm.js
+# or
+% npm run build
 
 % open index.html
 ```
@@ -24,7 +32,7 @@ Install [ elm ](http://elm-lang.org/install)
 
 This little project grew out of something I wasn't quite sure how to do in Elm, and that was get the value of an element or one of it's attributes. It turns out it's quite easy.
 
-Originally I had wondered how to get a data-attribute from a button. say something like:
+I had wondered how to get a specific data-attribute from a button. say something like:
 
 ```
 button [ html.attribute "data-value" "1" ] [ text "1"]
@@ -57,22 +65,25 @@ decodeDataAttr =
 
 This will look in `e.target`'s `dataset` and pluck out `value` or whatever our attribute is called. It's pretty straight forward.
 
-A non working example of wiring it up, would look something like this.
+A trivial example of wiring it up, would look something like this.
 
 ```
+-- abstract "value" from "dataset"
 decodeDataAttr : Json.Decode.Decoder String
 decodeDataAttr =
   at ["target", "dataset", "value"] string
 
 
+-- click event
 getAttribute : Signal.Address a -> (String -> a) -> Html.Attribute
 getAttribute address f =
-  on "click" decodeDataAttr (\v -> Signal.message address (f v))
+  on "click" (Json.map SomeAction decodeDataAttr)
 
+-- view
 view =
   button [
     attribute "data-value" "1"
-    , getAttribute address SomeAction
+    , getAttribute SomeAction
   ] [ text "1" ]
 
 ```

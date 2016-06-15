@@ -1,20 +1,16 @@
-module Main (..) where
+module Main exposing (..)
 
-import Html exposing (div, button, text, input, span)
-import Html.Events exposing (onClick, on, targetValue)
-import Html.Attributes exposing (id, class, attribute, type', value, classList)
-import StartApp.Simple as StartApp
+import Html exposing (..)
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
+import Html.App as Html
 import Json.Decode exposing (..)
 import String
 import List
+import Json.Decode as Json
 
 
 -- Events
-
-
-onInput : Signal.Address a -> (String -> a) -> Html.Attribute
-onInput address f =
-  on "input" targetValue (\v -> Signal.message address (f v))
 
 
 decodeButtonText : Json.Decode.Decoder String
@@ -22,16 +18,15 @@ decodeButtonText =
   at [ "target", "innerText" ] string
 
 
-getTriggeredValue : Signal.Address a -> (String -> a) -> Html.Attribute
-getTriggeredValue address f =
-  on "click" decodeButtonText (\v -> Signal.message address (f v))
-
+getTriggeredValue : Attribute Msg
+getTriggeredValue =
+  on "click" (Json.map UpdateField decodeButtonText)
 
 
 -- Helpers
 
 
-classNames : List String -> Html.Attribute
+classNames : List String -> Attribute Msg
 classNames strings =
   classList (List.map (\str -> ( str, True )) strings)
 
@@ -44,7 +39,6 @@ parseFloat string =
 
     Err error ->
       0
-
 
 
 -- Model
@@ -67,7 +61,6 @@ initialModel =
   , operation = ""
   , allClear = True
   }
-
 
 
 -- Operations
@@ -93,11 +86,10 @@ subtraction x y =
   x - y
 
 
-
 -- Action
 
 
-type Action
+type Msg
   = AllClear
   | Clear
   | UpdateField String
@@ -111,15 +103,14 @@ type Action
   | Percent
 
 
-
 -- Update
 
 
-update : Action -> Model -> Model
-update action model =
-  case action of
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+  case msg of
     AllClear ->
-      initialModel
+      ( initialModel, Cmd.none )
 
     Clear ->
       let
@@ -129,18 +120,18 @@ update action model =
           else
             model.total
       in
-        { model
+        ( { model
           | operation = ""
           , input = ""
           , total = total
           , allClear = True
-        }
+        }, Cmd.none )
 
     UpdateField str ->
-      { model
+      ( { model
         | input = model.input ++ str
         , allClear = False
-      }
+      }, Cmd.none )
 
     Percent ->
       let
@@ -156,7 +147,10 @@ update action model =
           else
             model.total
       in
-        { model | input = input, total = total }
+        ( { model
+          | input = input
+          , total = total
+        }, Cmd.none )
 
     Negate ->
       let
@@ -172,7 +166,10 @@ update action model =
           else
             model.input
       in
-        { model | input = input, total = total }
+        ( { model
+          | input = input
+          , total = total
+        }, Cmd.none )
 
     Decimal ->
       let
@@ -190,14 +187,17 @@ update action model =
           else
             model.input
       in
-        { model | input = input, total = total }
+        ({ model
+          | input = input
+          , total = total
+          }, Cmd.none )
 
     Sum ->
-      { model
+      ( { model
         | operation = "Sum"
         , total = model.total + parseFloat model.input
         , input = ""
-      }
+      }, Cmd.none )
 
     Subtract ->
       let
@@ -209,11 +209,11 @@ update action model =
           else
             parseFloat model.input
       in
-        { model
+        ({ model
           | operation = "Subtract"
           , total = total
           , input = ""
-        }
+        }, Cmd.none )
 
     Multiply ->
       let
@@ -225,11 +225,11 @@ update action model =
           else
             model.lastCalculation
       in
-        { model
+        ( { model
           | operation = "Multiply"
           , total = total
           , input = ""
-        }
+        }, Cmd.none )
 
     Divide ->
       let
@@ -241,66 +241,65 @@ update action model =
           else
             model.lastCalculation
       in
-        { model
+        ({ model
           | operation = "Divide"
           , total = total
           , input = ""
-        }
+        }, Cmd.none )
 
     Equals ->
       case model.operation of
         "Sum" ->
-          { model
+          ( { model
             | operation = ""
             , total = (model.total + parseFloat model.input)
             , lastCalculation = (model.total + parseFloat model.input)
             , input = ""
-          }
+          }, Cmd.none )
 
         "Subtract" ->
           let
             total =
               (model.total - parseFloat model.input)
           in
-            { model
+            ( { model
               | operation = ""
               , total = total
               , lastCalculation = (model.total - parseFloat model.input)
               , input = ""
-            }
+            }, Cmd.none )
 
         "Multiply" ->
-          { model
+          ( { model
             | operation = ""
             , total = (model.total * parseFloat model.input)
             , lastCalculation = (model.total * parseFloat model.input)
             , input = ""
-          }
+          }, Cmd.none )
 
         "Divide" ->
-          { model
+          ( { model
             | operation = ""
             , total = (model.total / parseFloat model.input)
             , lastCalculation = (model.total / parseFloat model.input)
             , input = ""
-          }
+          }, Cmd.none )
 
         _ ->
-          model
-
+          ( model, Cmd.none )
 
 
 -- View
 
 
-renderNumberButton : String -> Signal.Address Action -> Html.Html
-renderNumberButton val address =
+renderNumberButton : String -> Html Msg
+renderNumberButton val =
   button
-    [ classNames [ "btn" ], getTriggeredValue address UpdateField ]
+    [ classNames [ "btn" ], getTriggeredValue ]
     [ text val ]
 
 
-renderOutput : Model -> Html.Html
+renderOutput : Model -> Html Msg
 renderOutput model =
   div
     [ classNames [ "output" ] ]
@@ -321,26 +320,26 @@ renderOutput model =
     ]
 
 
-renderOperator : String -> Signal.Address Action -> Action -> Html.Html
-renderOperator val address action =
+renderOperator : String -> Msg -> Html Msg
+renderOperator val action =
   button
     [ classNames [ "btn", "btn__operator" ]
-    , onClick address action
+    , onClick action
     ]
     [ text val ]
 
 
-renderAction : String -> Signal.Address Action -> Action -> Html.Html
-renderAction val address action =
+renderAction : String -> Msg -> Html Msg
+renderAction val action =
   button
     [ classNames [ "btn", "btn__action" ]
-    , onClick address action
+    , onClick action
     ]
     [ text val ]
 
 
-view : Signal.Address Action -> Model -> Html.Html
-view address model =
+view : Model -> Html Msg
+view model =
   div
     []
     [ div [ classNames [ "model", "hidden" ] ] [ text (toString model) ]
@@ -354,7 +353,7 @@ view address model =
                     classNames [ "btn btn__action" ]
                   else
                     classNames [ "hidden" ]
-                , onClick address AllClear
+                , onClick AllClear
                 ]
                 [ text "AC" ]
             , button
@@ -362,60 +361,64 @@ view address model =
                     classNames [ "hidden" ]
                   else
                     classNames [ "btn btn__action" ]
-                , onClick address Clear
+                , onClick Clear
                 ]
                 [ text "C" ]
-            , renderAction "+/-" address Negate
-            , renderAction "%" address Percent
-            , renderOperator "/" address Divide
+            , renderAction "+/-" Negate
+            , renderAction "%" Percent
+            , renderOperator "/" Divide
             ]
         , div
             []
-            [ renderNumberButton "7" address
-            , renderNumberButton "8" address
-            , renderNumberButton "9" address
-            , renderOperator "*" address Multiply
+            [ renderNumberButton "7"
+            , renderNumberButton "8"
+            , renderNumberButton "9"
+            , renderOperator "*" Multiply
             ]
         , div
             []
-            [ renderNumberButton "4" address
-            , renderNumberButton "5" address
-            , renderNumberButton "6" address
-            , renderOperator "-" address Subtract
+            [ renderNumberButton "4"
+            , renderNumberButton "5"
+            , renderNumberButton "6"
+            , renderOperator "-" Subtract
             ]
         , div
             []
-            [ renderNumberButton "1" address
-            , renderNumberButton "2" address
-            , renderNumberButton "3" address
-            , renderOperator "+" address Sum
+            [ renderNumberButton "1"
+            , renderNumberButton "2"
+            , renderNumberButton "3"
+            , renderOperator "+" Sum
             ]
         , div
             []
             [ button
                 [ classNames [ "btn", "btn__zero" ]
-                , getTriggeredValue address UpdateField
+                , getTriggeredValue
                 ]
                 [ text "0" ]
             , button
                 [ classNames [ "btn", "btn_zero" ]
-                , onClick address Decimal
+                , onClick Decimal
                 ]
                 [ text "." ]
-            , renderOperator "=" address Equals
+            , renderOperator "=" Equals
             ]
         ]
     ]
 
 
-
 -- Main
 
 
-main : Signal Html.Html
+init : Maybe Model -> ( Model, Cmd Msg )
+init savedModel =
+  ( Maybe.withDefault initialModel savedModel, Cmd.none )
+
+
 main =
-  StartApp.start
-    { model = initialModel
+  Html.programWithFlags
+    { init = init
     , view = view
     , update = update
+    , subscriptions = \_ -> Sub.none
     }
