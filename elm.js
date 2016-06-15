@@ -7236,6 +7236,13 @@ var _user$project$Main$sum = F2(
 		return x + y;
 	});
 var _user$project$Main$initialModel = {total: 0, lastCalculation: 0, input: '', operation: '', allClear: true};
+var _user$project$Main$init = function (savedModel) {
+	return {
+		ctor: '_Tuple2',
+		_0: A2(_elm_lang$core$Maybe$withDefault, _user$project$Main$initialModel, savedModel),
+		_1: _elm_lang$core$Platform_Cmd$none
+	};
+};
 var _user$project$Main$parseFloat = function (string) {
 	var _p0 = _elm_lang$core$String$toFloat(string);
 	if (_p0.ctor === 'Ok') {
@@ -7669,15 +7676,50 @@ var _user$project$Main$view = function (model) {
 			]));
 };
 var _user$project$Main$main = {
-	main: _elm_lang$html$Html_App$program(
+	main: _elm_lang$html$Html_App$programWithFlags(
 		{
-			init: {ctor: '_Tuple2', _0: _user$project$Main$initialModel, _1: _elm_lang$core$Platform_Cmd$none},
+			init: _user$project$Main$init,
 			view: _user$project$Main$view,
 			update: _user$project$Main$update,
 			subscriptions: function (_p3) {
 				return _elm_lang$core$Platform_Sub$none;
 			}
-		})
+		}),
+	flags: _elm_lang$core$Json_Decode$oneOf(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+				A2(
+				_elm_lang$core$Json_Decode$map,
+				_elm_lang$core$Maybe$Just,
+				A2(
+					_elm_lang$core$Json_Decode$andThen,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'allClear', _elm_lang$core$Json_Decode$bool),
+					function (allClear) {
+						return A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'input', _elm_lang$core$Json_Decode$string),
+							function (input) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'lastCalculation', _elm_lang$core$Json_Decode$float),
+									function (lastCalculation) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'operation', _elm_lang$core$Json_Decode$string),
+											function (operation) {
+												return A2(
+													_elm_lang$core$Json_Decode$andThen,
+													A2(_elm_lang$core$Json_Decode_ops[':='], 'total', _elm_lang$core$Json_Decode$float),
+													function (total) {
+														return _elm_lang$core$Json_Decode$succeed(
+															{allClear: allClear, input: input, lastCalculation: lastCalculation, operation: operation, total: total});
+													});
+											});
+									});
+							});
+					}))
+			]))
 };
 
 var Elm = {};
